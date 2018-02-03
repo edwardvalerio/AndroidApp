@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#c30027</color>
+    <color name="colorPrimaryDark">#c30027</color>
+    <color name="colorAccent">#c30027</color>
+    <color name="spinColor">#ffffff</color>
+</resources>
