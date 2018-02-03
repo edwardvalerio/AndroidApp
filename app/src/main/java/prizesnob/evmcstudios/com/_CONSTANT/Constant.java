@@ -1,4 +1,4 @@
-package prizesnob.evmcstudios.com.CONSTANT;
+package prizesnob.evmcstudios.com._CONSTANT;
 
 /**
  * Created by edwardvalerio on 2/2/2018.

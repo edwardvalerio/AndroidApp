@@ -1,11 +1,10 @@
-package prizesnob.evmcstudios.com.AppPreloader;
+package prizesnob.evmcstudios.com.Preloader;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
-import prizesnob.evmcstudios.com.PSLogin;
+import prizesnob.evmcstudios.com.MainPages.PSLogin;
 import prizesnob.evmcstudios.com.R;
 
 /**
