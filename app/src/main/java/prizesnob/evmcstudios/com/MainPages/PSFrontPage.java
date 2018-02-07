@@ -3,6 +3,7 @@ package prizesnob.evmcstudios.com.MainPages;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -25,19 +26,27 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import prizesnob.evmcstudios.com.ApiTasks.GetNonceTask;
+import prizesnob.evmcstudios.com.ApiTasks.UserLoginTask;
+import prizesnob.evmcstudios.com.ApiTasks.UserRegisterTask;
+import prizesnob.evmcstudios.com.Preloader.PSAppLoader;
 import prizesnob.evmcstudios.com._CONSTANT.Constant;
 import prizesnob.evmcstudios.com.R;
 import prizesnob.evmcstudios.com.Tasks.handler.HttpHandler;
+import prizesnob.evmcstudios.com._CONSTANT.Storage;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class PSLogin extends AppCompatActivity   {
+public class PSFrontPage extends AppCompatActivity   {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    public UserLoginTask mAuthTask = null;
+    public GetNonceTask mNonceTask = null;
+    private Storage appStorage;
+
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -45,8 +54,8 @@ public class PSLogin extends AppCompatActivity   {
     private View mProgressView;
     private View mLoginFormView;
 
-    private String TAG = PSLogin.class.getSimpleName();
-    ArrayList<HashMap<String, String>> contactList;
+    private String TAG = PSFrontPage.class.getSimpleName();
+
     private String NonceVal = "";
 
     @Override
@@ -54,6 +63,8 @@ public class PSLogin extends AppCompatActivity   {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prize_snob_login);
 
+        // shared preferences class
+        appStorage = new Storage(getApplicationContext());
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -71,6 +82,7 @@ public class PSLogin extends AppCompatActivity   {
             }
         });
 
+
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -78,6 +90,20 @@ public class PSLogin extends AppCompatActivity   {
                 attemptLogin();
             }
         });
+
+        Button mRegisterButton = (Button) findViewById(R.id.register_account_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent i=new Intent(getApplicationContext(), PSRegisterPage.class);
+                startActivity(i);
+
+
+            }
+        });
+
+
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
@@ -91,6 +117,7 @@ public class PSLogin extends AppCompatActivity   {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+
         if (mAuthTask != null) {
             return;
         }
@@ -135,9 +162,14 @@ public class PSLogin extends AppCompatActivity   {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+
+            if(mAuthTask == null) {
+                mAuthTask = new UserLoginTask( email, password, PSFrontPage.this);
+                mAuthTask.execute((Void) null);
+            }
+
         }
     }
 
@@ -148,14 +180,14 @@ public class PSLogin extends AppCompatActivity   {
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 6;
+        return password.length() > 1;
     }
 
     /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -188,88 +220,37 @@ public class PSLogin extends AppCompatActivity   {
     }
 
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Toast.makeText(PSLogin.this, "Json Data is  downloading", Toast.LENGTH_LONG).show();
-
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-
-            HttpHandler sh = new HttpHandler();
-            // Making a request to url and getting response
-            String url = Constant.NONCE_URL;
-            String jsonStr  = sh.makeServiceCall(url,"GET");
-
-            Log.e(TAG, "results: " + jsonStr);
-            if (jsonStr != null) {
-
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-                    NonceVal = jsonObj.getString("nonce");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    public void cleanFields() {
 
 
-            } else {
-                Log.e(TAG, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
+        mEmailView.setText("");
+        mPasswordView.setText("");
 
 
-
-
-
-            return true;
-
-
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-
-               // finish();
-                Toast.makeText(getApplicationContext(), "Done : " + NonceVal , Toast.LENGTH_SHORT).show();
-
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
+
+
+    public void successfulLogin(String cookie, String userAccount) {
+
+        appStorage.saveCookie(cookie);
+        appStorage.saveUserAccount(userAccount);
+
+        // start activity
+        Intent newActivity = new Intent(getApplicationContext(), PSDashboardPage.class);
+
+        // pass userAccount
+        Bundle bundle = new Bundle();
+        bundle.putString("USERACCOUNT",userAccount);
+        newActivity.putExtras(bundle);
+        startActivity(newActivity);
+        finish();
+
+
+    }
+
+
+
+
+
 }
 

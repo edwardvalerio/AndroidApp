@@ -24,6 +24,7 @@ public class HttpHandler {
 
         }
 
+       // GET NONCE CALL
         public String makeServiceCall(String reqUrl, String type) {
             String response = null;
             try {
@@ -45,7 +46,32 @@ public class HttpHandler {
             return response;
         }
 
-        private String convertStreamToString(InputStream is) {
+
+    public String requestRegistrationService(String reqUrl, String type) {
+        String response = null;
+        try {
+            URL url = new URL(reqUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(type);
+            // read the response
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            response = convertStreamToString(in);
+
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "MalformedURLException: " + e.getMessage());
+        } catch (ProtocolException e) {
+            Log.e(TAG, "ProtocolException: " + e.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "IOException: - " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Exception: " + e.getMessage());
+        }
+        return response;
+    }
+
+
+
+  private String convertStreamToString(InputStream is) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
 

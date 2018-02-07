@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import prizesnob.evmcstudios.com.MainPages.PSLogin;
+import prizesnob.evmcstudios.com.MainPages.PSFrontPage;
 import prizesnob.evmcstudios.com.R;
 
 /**
@@ -25,7 +25,7 @@ public class PSAppLoader extends AppCompatActivity {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        Intent i=new Intent(getApplicationContext(),PSLogin.class);
+                        Intent i=new Intent(getApplicationContext(),PSFrontPage.class);
                         startActivity(i);
                         finish();
                     }
